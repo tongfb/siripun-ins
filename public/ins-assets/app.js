@@ -15,12 +15,26 @@
   const normalizeToken = (token) => token
     .trim()
     .replace(/^INS\s*/i, '')
-    .replace(/[()\[\]]/g, '')
+    .replace(/\s+/g, '')
     .trim();
+
+  const lookupKey = (value) => String(value ?? '')
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[()\[\]]/g, '');
 
   function parseQuery(raw) {
     const matches = String(raw || '').match(/(?:INS\s*)?\d{2,4}(?:\s*\([ivx]+\)|[a-z])?/gi) || [];
-    return [...new Set(matches.map(normalizeToken).filter(Boolean))];
+    const seen = new Set();
+    const tokens = [];
+    for (const match of matches) {
+      const token = normalizeToken(match);
+      const key = lookupKey(token);
+      if (!token || !key || seen.has(key)) continue;
+      seen.add(key);
+      tokens.push(token);
+    }
+    return tokens;
   }
 
   function renderRecord(record) {
@@ -89,7 +103,7 @@
 
       const db = await dbRes.json();
       const config = await configRes.json();
-      const recordMap = new Map(db.records.map((r) => [String(r.ins).toLowerCase(), r]));
+      const recordMap = new Map(db.records.map((r) => [lookupKey(r.ins), r]));
 
       const credit = config.data_credit ? `
         <aside class="siripun-ins-credit">
@@ -140,10 +154,10 @@
           return;
         }
         results.innerHTML = tokens.map((token) => {
-          const record = recordMap.get(token.toLowerCase());
+          const record = recordMap.get(lookupKey(token));
           return record ? renderRecord(record) : renderMissing(token);
         }).join('');
-        const found = tokens.filter((token) => recordMap.has(token.toLowerCase())).length;
+        const found = tokens.filter((token) => recordMap.has(lookupKey(token))).length;
         summary.textContent = `ค้นหา ${tokens.length} รายการ • พบข้อมูล ${found} รายการ • ฐานข้อมูล ${db.database_version}`;
         summary.hidden = false;
         if (updateUrl) {
