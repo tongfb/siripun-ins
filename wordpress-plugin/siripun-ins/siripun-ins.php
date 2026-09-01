@@ -2,13 +2,13 @@
 /**
  * Plugin Name: Siripun INS Lookup
  * Description: แสดง Siripun INS Lookup ผ่าน shortcode [siripun_ins] และมีหน้าหลังบ้านสำหรับตรวจอัปเดตฐานข้อมูล
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: Siripun
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('SIRIPUN_INS_VERSION', '0.1.0');
+define('SIRIPUN_INS_VERSION', '0.2.0');
 define('SIRIPUN_INS_DEFAULT_ASSET_BASE', 'https://siripun.com/ins-assets');
 
 function siripun_ins_asset_base() {
@@ -20,9 +20,30 @@ function siripun_ins_shortcode($atts = []) {
     static $instance = 0;
     $instance++;
     $base = siripun_ins_asset_base();
+
     wp_enqueue_style('siripun-ins-app', $base . '/app.css', [], SIRIPUN_INS_VERSION);
-    wp_enqueue_script('siripun-ins-app', $base . '/app.js', [], SIRIPUN_INS_VERSION, true);
-    return '<div data-siripun-ins-root data-instance="' . esc_attr((string)$instance) . '"></div>';
+
+    $root_id = 'siripun-ins-root-' . $instance;
+    $script_url = add_query_arg('v', SIRIPUN_INS_VERSION, $base . '/app.js');
+
+    $loader = '<script>(function(){'
+        . 'var root=document.getElementById(' . wp_json_encode($root_id) . ');'
+        . 'if(!root){return;}'
+        . 'var existing=document.querySelector("script[data-siripun-ins-runtime]");'
+        . 'if(existing){'
+        . 'if(window.__siripunInsMounted){return;}'
+        . 'existing.addEventListener("load",function(){window.__siripunInsMounted=true;});'
+        . 'return;'
+        . '}'
+        . 'var s=document.createElement("script");'
+        . 's.src=' . wp_json_encode($script_url) . ';'
+        . 's.async=false;'
+        . 's.setAttribute("data-siripun-ins-runtime","1");'
+        . 's.onload=function(){window.__siripunInsMounted=true;};'
+        . 'document.head.appendChild(s);'
+        . '})();</script>';
+
+    return '<div id="' . esc_attr($root_id) . '" data-siripun-ins-root data-instance="' . esc_attr((string)$instance) . '"></div>' . $loader;
 }
 add_shortcode('siripun_ins', 'siripun_ins_shortcode');
 
