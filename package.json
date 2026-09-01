@@ -10,6 +10,7 @@
     "data:check-sources": "node scripts/check-sources.mjs",
     "data:import-thai-fda": "node scripts/import-thai-fda.mjs",
     "data:import-thai-fda:apply": "node scripts/import-thai-fda.mjs --apply",
+    "data:preview-thai-fda": "node scripts/preview-thai-fda-database.mjs",
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy",
     "data:sync": "node scripts/sync-public-data.mjs"
