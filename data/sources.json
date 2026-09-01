@@ -38,8 +38,8 @@
       "url": "https://exfood.fda.moph.go.th/law/data/complilation/Compi_281.pdf",
       "type": "official-consolidated-regulation",
       "status": "current-reference",
-      "status_note": "The current Thai FDA food-additive law page still lists the consolidated No. 281 under quality/standards. It is not used as the source for current conditions of use.",
-      "fields": ["name_th", "quality_standards"],
+      "status_note": "The current Thai FDA food-additive law page still lists the consolidated No. 281 under quality/standards. Historical/superseded use-condition annexes inside the compilation must not be treated as current conditions of use.",
+      "fields": ["name_th", "synonyms", "functional_classes_th", "quality_standards"],
       "check_mode": "headers"
     },
     {
