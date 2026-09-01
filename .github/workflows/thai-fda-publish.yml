@@ -1,0 +1,71 @@
+name: Publish Thai FDA Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type PUBLISH to write the Thai FDA database to production data'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: thai-fda-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Confirm publish
+        run: |
+          if [ "${{ inputs.confirm }}" != "PUBLISH" ]; then
+            echo "Confirmation must be exactly PUBLISH"
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build and apply Thai FDA database
+        run: node scripts/preview-thai-fda-database.mjs --apply
+
+      - name: Validate source database
+        run: npm run data:validate
+
+      - name: Sync public data
+        run: npm run data:sync
+
+      - name: Run tests
+        run: npm test
+
+      - name: Check diff
+        run: git diff --check
+
+      - name: Commit published database
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ins.json public/ins-assets/data/ins.json
+          if git diff --cached --quiet; then
+            echo "No database changes to publish."
+          else
+            git commit -m "data: publish Thai FDA P468 V.02 database"
+            git push
+          fi
+
+      - name: Upload publish report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thai-fda-publish-report
+          path: reports/thai-fda-preview/
+          if-no-files-found: warn
