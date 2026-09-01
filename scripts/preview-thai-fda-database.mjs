@@ -3,7 +3,9 @@ import fs from 'node:fs/promises';
 const endpoint = 'https://alimentum.fda.moph.go.th/FDA_FOOD_MVC/Additive/AdditiveGet';
 const sourceId = 'thai-fda-p468-db';
 const databaseVersion = 'P468 V.02';
+const apply = process.argv.includes('--apply');
 const outDir = new URL('../reports/thai-fda-preview/', import.meta.url);
+const databasePath = new URL('../data/ins.json', import.meta.url);
 await fs.mkdir(outDir, { recursive: true });
 
 function normalizePayload(value) {
@@ -27,7 +29,7 @@ async function callThaiFda(action) {
       'accept-language': 'th-TH,th;q=0.9,en;q=0.7',
       'origin': 'https://alimentum.fda.moph.go.th',
       'referer': 'https://alimentum.fda.moph.go.th/FDA_FOOD_MVC/Additive/Welcome',
-      'user-agent': 'SiripunINS/0.2 Thai-FDA-preview (+https://siripun.com/ins)'
+      'user-agent': 'SiripunINS/0.3 Thai-FDA-importer (+https://siripun.com/ins)'
     },
     body: JSON.stringify({ Action: action })
   });
@@ -87,6 +89,30 @@ function insSort(a, b) {
   return String(a.ins).localeCompare(String(b.ins), undefined, { numeric: true, sensitivity: 'base' });
 }
 
+function preservedSupplement(existing) {
+  if (!existing) return {};
+  const supplement = {};
+  if (existing.jecfa) supplement.jecfa = existing.jecfa;
+  if (existing.source_warning) supplement.source_warning = existing.source_warning;
+  return supplement;
+}
+
+function preservedSupplementSources(existing) {
+  if (!existing) return { sourceIds: [], fieldSources: {} };
+  const fieldSources = {};
+  const sourceIds = [];
+  for (const field of ['jecfa', 'source_warning']) {
+    const ids = existing.field_sources?.[field];
+    if (!Array.isArray(ids) || !ids.length) continue;
+    fieldSources[field] = [...ids];
+    sourceIds.push(...ids);
+  }
+  return { sourceIds: unique(sourceIds), fieldSources };
+}
+
+const currentDb = JSON.parse(await fs.readFile(databasePath, 'utf8'));
+const currentByIns = new Map((currentDb.records || []).map((record) => [String(record.ins), record]));
+
 const [nameRows, functionRows] = await Promise.all([
   callThaiFda('getListName'),
   callThaiFda('getFaWithFunction')
@@ -109,27 +135,37 @@ for (const nameRow of primaryNames) {
     .map((row) => splitFunction(row.FULLNAME))
     .filter((item) => item.en || item.th);
 
+  const functionalClasses = unique(functionPairs.map((item) => item.en));
+  const functionalClassesTh = unique(functionPairs.map((item) => item.th));
+  const existing = currentByIns.get(ins);
+  const supplement = preservedSupplement(existing);
+  const supplementSources = preservedSupplementSources(existing);
+
   records.push({
     ins,
     name_en: main.name_en,
     name_th: main.name_th,
     synonyms,
-    functional_classes: unique(functionPairs.map((item) => item.en)),
-    functional_classes_th: unique(functionPairs.map((item) => item.th)),
-    jecfa: null,
-    source_ids: [sourceId],
+    functional_classes: functionalClasses,
+    functional_classes_th: functionalClassesTh,
+    jecfa: supplement.jecfa ?? null,
+    ...(supplement.source_warning ? { source_warning: supplement.source_warning } : {}),
+    source_ids: unique([sourceId, ...supplementSources.sourceIds]),
     field_sources: {
       name_en: [sourceId],
       name_th: [sourceId],
       synonyms: [sourceId],
       functional_classes: [sourceId],
-      functional_classes_th: [sourceId]
+      functional_classes_th: [sourceId],
+      ...supplementSources.fieldSources
     },
     source_record: {
       database_version: databaseVersion,
       backend_action_names: ['getListName', 'getFaWithFunction']
     },
-    status: 'thai-fda-primary-preview'
+    status: functionalClasses.length
+      ? (apply ? 'thai-fda-primary-published' : 'thai-fda-primary-preview')
+      : (apply ? 'thai-fda-primary-published-source-missing-function' : 'thai-fda-primary-preview-source-missing-function')
   });
 }
 
@@ -144,6 +180,7 @@ const duplicateRecordIns = [...new Set(records.map((record) => record.ins).filte
 const preview = {
   schema_version: 2,
   generated_at: new Date().toISOString(),
+  mode: apply ? 'apply' : 'preview',
   source_id: sourceId,
   source_database_version: databaseVersion,
   endpoint,
@@ -171,14 +208,50 @@ const preview = {
 await fs.writeFile(new URL('thai-fda-preview.json', outDir), `${JSON.stringify(preview, null, 2)}\n`);
 await fs.writeFile(new URL('summary.json', outDir), `${JSON.stringify({
   generated_at: preview.generated_at,
+  mode: preview.mode,
   source_database_version: databaseVersion,
   stats: preview.stats,
   checks: preview.checks,
   samples
 }, null, 2)}\n`);
 
-console.log(`Thai FDA preview built ${records.length} records from ${nameRows.length} name rows and ${functionRows.length} function rows.`);
+console.log(`Thai FDA ${preview.mode} built ${records.length} records from ${nameRows.length} name rows and ${functionRows.length} function rows.`);
 console.log(`Thai names missing: ${missingThai.length}; functions missing: ${missingFunctions.length}; duplicate record INS: ${duplicateRecordIns.length}.`);
 for (const ins of sampleIns) console.log(`Sample INS ${ins}: ${samples[ins] ? 'FOUND' : 'MISSING'}`);
 
-if (!records.length || duplicateRecordIns.length) process.exitCode = 2;
+const fatalQualityProblem = !records.length
+  || records.length < 350
+  || records.length > 500
+  || missingThai.length > 0
+  || duplicateRecordIns.length > 0
+  || duplicateNameIns.length > 0;
+
+if (fatalQualityProblem) {
+  console.error('Quality gate failed. Database will not be published.');
+  process.exitCode = 2;
+} else if (apply) {
+  const previousCount = currentDb.records?.length || 0;
+  if (previousCount >= 300) {
+    const ratio = records.length / previousCount;
+    if (ratio < 0.85 || ratio > 1.15) {
+      console.error(`Quality gate failed: record count changed from ${previousCount} to ${records.length}.`);
+      process.exitCode = 2;
+    }
+  }
+
+  if (!process.exitCode) {
+    const reviewedAt = new Date().toISOString().slice(0, 10);
+    const published = {
+      schema_version: 2,
+      database_version: '0.3.0',
+      reviewed_at: reviewedAt,
+      primary_data_source: sourceId,
+      legal_verification_source: 'thai-fda-p468-law',
+      source_database_version: databaseVersion,
+      migration_status: 'full-thai-fda-primary-import',
+      records
+    };
+    await fs.writeFile(databasePath, `${JSON.stringify(published, null, 2)}\n`);
+    console.log(`Published ${records.length} Thai FDA records to data/ins.json.`);
+  }
+}
