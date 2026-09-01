@@ -23,15 +23,7 @@
     return [...new Set(matches.map(normalizeToken).filter(Boolean))];
   }
 
-  function renderSourceBadges(record, sourceMap) {
-    return (record.source_ids || []).map((id) => {
-      const source = sourceMap.get(id);
-      if (!source) return '';
-      return `<a class="siripun-ins-source" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.authority)}</a>`;
-    }).join('');
-  }
-
-  function renderRecord(record, sourceMap) {
+  function renderRecord(record) {
     const functionsTh = (record.functional_classes_th || []).map((x) => `<li>${escapeHtml(x)}</li>`).join('');
     const functionsEn = (record.functional_classes || []).map((x) => `<li>${escapeHtml(x)}</li>`).join('');
     const synonyms = (record.synonyms || []).length
@@ -44,25 +36,28 @@
         <div class="siripun-ins-row"><strong>CAS</strong><span>${escapeHtml(record.jecfa.cas ?? '')}</span></div>
       </div>` : '';
     const sourceWarning = record.source_warning
-      ? `<div class="siripun-ins-source-warning"><strong>⚠ หมายเหตุจากการตรวจแหล่งต้นฉบับ</strong><span>${escapeHtml(record.source_warning)}</span></div>`
+      ? `<div class="siripun-ins-source-warning"><strong>⚠ หมายเหตุจากการตรวจข้อมูล</strong><span>${escapeHtml(record.source_warning)}</span></div>`
       : '';
+
+    const thaiFunctions = functionsTh
+      ? `<div><strong>หน้าที่</strong><ul>${functionsTh}</ul></div>`
+      : `<div><strong>หน้าที่</strong><p class="siripun-ins-unavailable">ยังไม่มีข้อมูลภาษาไทยจากฐานปัจจุบัน</p></div>`;
 
     return `
       <article class="siripun-ins-card" id="ins-${escapeHtml(record.ins)}">
         <div class="siripun-ins-card-head">
           <span class="siripun-ins-number">INS ${escapeHtml(record.ins)}</span>
-          <span class="siripun-ins-status">${record.source_warning ? 'ข้อมูลจากต้นฉบับ • มีจุดต้องตรวจ' : 'ข้อมูลจากต้นฉบับ'}</span>
+          <span class="siripun-ins-status">${record.source_warning ? 'ข้อมูลในฐาน • มีจุดต้องตรวจ' : 'ข้อมูลในฐาน'}</span>
         </div>
         <h3>${escapeHtml(record.name_en)}</h3>
-        <div class="siripun-ins-thai-name">${escapeHtml(record.name_th || 'ยังไม่พบชื่อภาษาไทยจากแหล่งอ้างอิงที่ใช้')}</div>
+        <div class="siripun-ins-thai-name">${escapeHtml(record.name_th || 'ยังไม่มีข้อมูลชื่อภาษาไทยจากฐานปัจจุบัน')}</div>
         ${synonyms}
         <div class="siripun-ins-columns">
-          <div><strong>หน้าที่</strong><ul>${functionsTh}</ul></div>
+          ${thaiFunctions}
           <div><strong>Functional class</strong><ul>${functionsEn}</ul></div>
         </div>
         ${jecfa}
         ${sourceWarning}
-        <div class="siripun-ins-source-wrap"><strong>แหล่งข้อมูล</strong>${renderSourceBadges(record, sourceMap)}</div>
       </article>`;
   }
 
@@ -86,18 +81,22 @@
     root.innerHTML = '<div class="siripun-ins-loading">กำลังโหลดฐานข้อมูล…</div>';
 
     try {
-      const [dbRes, sourcesRes, configRes] = await Promise.all([
+      const [dbRes, configRes] = await Promise.all([
         fetch(`${ASSET_BASE}/data/ins.json`, { cache: 'no-store' }),
-        fetch(`${ASSET_BASE}/data/sources.json`, { cache: 'no-store' }),
         fetch(`${ASSET_BASE}/config.json`, { cache: 'no-store' })
       ]);
-      if (!dbRes.ok || !sourcesRes.ok || !configRes.ok) throw new Error('data-load-failed');
+      if (!dbRes.ok || !configRes.ok) throw new Error('data-load-failed');
 
       const db = await dbRes.json();
-      const sources = await sourcesRes.json();
       const config = await configRes.json();
       const recordMap = new Map(db.records.map((r) => [String(r.ins).toLowerCase(), r]));
-      const sourceMap = new Map(sources.sources.map((s) => [s.id, s]));
+
+      const credit = config.data_credit ? `
+        <aside class="siripun-ins-credit">
+          <strong>${escapeHtml(config.data_credit.label)}</strong>
+          <span>ฐานข้อมูล ${escapeHtml(config.data_credit.database_version || '')}</span>
+          <small>${escapeHtml(config.data_credit.note || '')}</small>
+        </aside>` : '';
 
       root.innerHTML = `
         <section class="siripun-ins-shell">
@@ -115,6 +114,7 @@
           </form>
           <div class="siripun-ins-summary" hidden></div>
           <div class="siripun-ins-results" aria-live="polite"></div>
+          ${credit}
           ${config.donation?.enabled ? `
           <footer class="siripun-ins-footer">
             <span>${escapeHtml(config.donation.label)}</span>
@@ -141,7 +141,7 @@
         }
         results.innerHTML = tokens.map((token) => {
           const record = recordMap.get(token.toLowerCase());
-          return record ? renderRecord(record, sourceMap) : renderMissing(token);
+          return record ? renderRecord(record) : renderMissing(token);
         }).join('');
         const found = tokens.filter((token) => recordMap.has(token.toLowerCase())).length;
         summary.textContent = `ค้นหา ${tokens.length} รายการ • พบข้อมูล ${found} รายการ • ฐานข้อมูล ${db.database_version}`;
