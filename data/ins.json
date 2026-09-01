@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "database_version": "0.1.1",
+  "database_version": "0.1.2",
   "reviewed_at": "2026-09-01",
   "records": [
     {
@@ -24,20 +24,19 @@
     {
       "ins": "406",
       "name_en": "Agar",
-      "name_th": "อะการ์",
+      "name_th": null,
       "synonyms": ["Agar-agar", "Gelose", "Japan agar", "Bengal Isinglass", "Ceylon Isinglass", "Chinese Isinglass", "Japanese Isinglass", "Layor Carang"],
       "functional_classes": ["Bulking agent", "Carrier", "Emulsifier", "Gelling agent", "Glazing agent", "Humectant", "Stabilizer", "Thickener"],
-      "functional_classes_th": ["สารเพิ่มปริมาณ", "สารช่วยทำละลาย หรือช่วยพา", "อิมัลซิไฟเออร์", "สารทำให้เกิดเจล", "สารเคลือบผิว", "สารทำให้เกิดความชุ่มชื้น", "สารทำให้คงตัว", "สารให้ความข้นเหนียว"],
+      "functional_classes_th": [],
       "jecfa": null,
-      "source_ids": ["codex-gsfa-406", "thai-fda-p389"],
+      "source_warning": "แหล่งข้อมูลไทยที่เคยใช้สำหรับรายการนี้คือคำชี้แจงประกาศฯ 389 ซึ่งหน้า อย. ปัจจุบันระบุว่ายกเลิกแล้ว จึงนำออกจากข้อมูลปัจจุบันชั่วคราว ชื่อภาษาไทยและหน้าที่ภาษาไทยรอตรวจยืนยันจากแหล่ง P468 ปัจจุบัน ส่วนชื่อและ Functional class ภาษาอังกฤษในรายการนี้อ้างจาก Codex GSFA",
+      "source_ids": ["codex-gsfa-406", "thai-fda-p468-law", "thai-fda-p468-db"],
       "field_sources": {
         "name_en": ["codex-gsfa-406"],
-        "name_th": ["thai-fda-p389"],
-        "synonyms": ["codex-gsfa-406", "thai-fda-p389"],
-        "functional_classes": ["codex-gsfa-406"],
-        "functional_classes_th": ["thai-fda-p389"]
+        "synonyms": ["codex-gsfa-406"],
+        "functional_classes": ["codex-gsfa-406"]
       },
-      "status": "source-checked"
+      "status": "current-source-review"
     },
     {
       "ins": "491",
@@ -55,9 +54,9 @@
       "source_warning": "พบความไม่สอดคล้องภายในหน้า WHO JECFA ปี 2026: ช่อง ADI ใช้คำว่า polyoxyethylene (20) sorbitan esters ขณะที่ Comments ในหน้าเดียวกันอ้างถึง sorbitan fatty acid esters (INS 491–495) จึงควรตรวจต้นฉบับก่อนนำข้อความ ADI ไปอ้างต่อ",
       "source_ids": ["who-jecfa-491", "thai-fda-compilation-281"],
       "field_sources": {
-        "name_en": ["who-jecfa-491", "thai-fda-compilation-281"],
+        "name_en": ["who-jecfa-491"],
         "name_th": ["thai-fda-compilation-281"],
-        "functional_classes": ["who-jecfa-491", "thai-fda-compilation-281"],
+        "functional_classes": ["who-jecfa-491"],
         "functional_classes_th": ["thai-fda-compilation-281"],
         "jecfa": ["who-jecfa-491"],
         "source_warning": ["who-jecfa-491"]
