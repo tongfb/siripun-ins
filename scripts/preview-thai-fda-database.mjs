@@ -50,11 +50,30 @@ function unique(values) {
 
 function splitMainName(value) {
   const text = clean(value);
-  const match = text.match(/^(.*)\s+\(([^()]*)\)\s*$/);
-  if (match && /[\u0E00-\u0E7F]/.test(match[2])) {
-    return { name_en: clean(match[1]), name_th: clean(match[2]) };
+  if (!text.endsWith(')')) return { name_en: text, name_th: null };
+
+  let depth = 0;
+  let outerOpen = -1;
+  for (let index = text.length - 1; index >= 0; index--) {
+    const char = text[index];
+    if (char === ')') depth += 1;
+    else if (char === '(') {
+      depth -= 1;
+      if (depth === 0) {
+        outerOpen = index;
+        break;
+      }
+    }
   }
-  return { name_en: text, name_th: null };
+
+  if (outerOpen <= 0) return { name_en: text, name_th: null };
+  const thaiCandidate = clean(text.slice(outerOpen + 1, -1));
+  if (!/[\u0E00-\u0E7F]/.test(thaiCandidate)) return { name_en: text, name_th: null };
+
+  return {
+    name_en: clean(text.slice(0, outerOpen)),
+    name_th: thaiCandidate
+  };
 }
 
 function splitFunction(value) {
