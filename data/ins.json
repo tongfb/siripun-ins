@@ -1,7 +1,10 @@
 {
-  "schema_version": 1,
-  "database_version": "0.1.2",
+  "schema_version": 2,
+  "database_version": "0.2.0",
   "reviewed_at": "2026-09-01",
+  "primary_data_source": "thai-fda-p468-db",
+  "legal_verification_source": "thai-fda-p468-law",
+  "migration_status": "starter-records-awaiting-thai-fda-primary-refresh",
   "records": [
     {
       "ins": "300",
@@ -19,7 +22,7 @@
         "functional_classes": ["codex-gsfa-300"],
         "functional_classes_th": ["thai-fda-compilation-281"]
       },
-      "status": "source-checked"
+      "status": "legacy-seed-awaiting-thai-fda-refresh"
     },
     {
       "ins": "406",
@@ -29,14 +32,15 @@
       "functional_classes": ["Bulking agent", "Carrier", "Emulsifier", "Gelling agent", "Glazing agent", "Humectant", "Stabilizer", "Thickener"],
       "functional_classes_th": [],
       "jecfa": null,
-      "source_warning": "แหล่งข้อมูลไทยที่เคยใช้สำหรับรายการนี้คือคำชี้แจงประกาศฯ 389 ซึ่งหน้า อย. ปัจจุบันระบุว่ายกเลิกแล้ว จึงนำออกจากข้อมูลปัจจุบันชั่วคราว ชื่อภาษาไทยและหน้าที่ภาษาไทยรอตรวจยืนยันจากแหล่ง P468 ปัจจุบัน ส่วนชื่อและ Functional class ภาษาอังกฤษในรายการนี้อ้างจาก Codex GSFA",
-      "source_ids": ["codex-gsfa-406", "thai-fda-p468-law", "thai-fda-p468-db"],
+      "source_warning": "แหล่งข้อมูลไทยที่เคยใช้สำหรับรายการนี้คือคำชี้แจงประกาศฯ 389 ซึ่งหน้า อย. ปัจจุบันระบุว่ายกเลิกแล้ว จึงนำออกจากข้อมูลปัจจุบันชั่วคราว ชื่อภาษาไทยและหน้าที่ภาษาไทยรอดึงและตรวจยืนยันจาก Thai FDA Food Additive Database P468 V.02",
+      "source_ids": ["codex-gsfa-406", "thai-fda-p468-db", "thai-fda-p468-law"],
       "field_sources": {
         "name_en": ["codex-gsfa-406"],
         "synonyms": ["codex-gsfa-406"],
-        "functional_classes": ["codex-gsfa-406"]
+        "functional_classes": ["codex-gsfa-406"],
+        "source_warning": ["thai-fda-p468-db", "thai-fda-p468-law"]
       },
-      "status": "current-source-review"
+      "status": "awaiting-thai-fda-primary-refresh"
     },
     {
       "ins": "491",
@@ -61,7 +65,7 @@
         "jecfa": ["who-jecfa-491"],
         "source_warning": ["who-jecfa-491"]
       },
-      "status": "source-checked-with-warning"
+      "status": "legacy-seed-awaiting-thai-fda-refresh-with-jecfa-warning"
     }
   ]
 }
