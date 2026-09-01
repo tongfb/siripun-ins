@@ -43,12 +43,15 @@
         <div class="siripun-ins-row"><strong>ADI</strong><span>${escapeHtml(record.jecfa.adi ?? '')}</span></div>
         <div class="siripun-ins-row"><strong>CAS</strong><span>${escapeHtml(record.jecfa.cas ?? '')}</span></div>
       </div>` : '';
+    const sourceWarning = record.source_warning
+      ? `<div class="siripun-ins-source-warning"><strong>⚠ หมายเหตุจากการตรวจแหล่งต้นฉบับ</strong><span>${escapeHtml(record.source_warning)}</span></div>`
+      : '';
 
     return `
       <article class="siripun-ins-card" id="ins-${escapeHtml(record.ins)}">
         <div class="siripun-ins-card-head">
           <span class="siripun-ins-number">INS ${escapeHtml(record.ins)}</span>
-          <span class="siripun-ins-status">ข้อมูลจากต้นฉบับ</span>
+          <span class="siripun-ins-status">${record.source_warning ? 'ข้อมูลจากต้นฉบับ • มีจุดต้องตรวจ' : 'ข้อมูลจากต้นฉบับ'}</span>
         </div>
         <h3>${escapeHtml(record.name_en)}</h3>
         <div class="siripun-ins-thai-name">${escapeHtml(record.name_th || 'ยังไม่พบชื่อภาษาไทยจากแหล่งอ้างอิงที่ใช้')}</div>
@@ -58,6 +61,7 @@
           <div><strong>Functional class</strong><ul>${functionsEn}</ul></div>
         </div>
         ${jecfa}
+        ${sourceWarning}
         <div class="siripun-ins-source-wrap"><strong>แหล่งข้อมูล</strong>${renderSourceBadges(record, sourceMap)}</div>
       </article>`;
   }
@@ -157,8 +161,6 @@
       if (config.donation?.enabled && copyButton && walletButton) {
         copyButton.addEventListener('click', () => copyText(config.donation.lightning_address, copyButton));
         walletButton.addEventListener('click', () => {
-          // Donation is optional UI only and is not a dependency of the INS lookup.
-          // Wallet support varies; the copy button remains the fallback.
           window.location.href = config.donation.lightning_uri;
         });
       }
