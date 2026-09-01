@@ -1,14 +1,6 @@
 name: Deploy Cloudflare Worker
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'public/**'
-      - 'src/**'
-      - 'wrangler.jsonc'
-      - 'package.json'
-      - 'package-lock.json'
 permissions:
   contents: read
 jobs:
