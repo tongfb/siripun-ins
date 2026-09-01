@@ -1,9 +1,21 @@
 (() => {
   'use strict';
 
-  const ASSET_BASE = document.currentScript?.src
-    ? new URL('.', document.currentScript.src).href.replace(/\/$/, '')
-    : '/ins-assets';
+  const resolveAssetBase = () => {
+    const configured = typeof window !== 'undefined' ? window.SIRIPUN_INS_ASSET_BASE : '';
+    if (configured) return String(configured).replace(/\/$/, '');
+
+    const originalScript = [...document.scripts].find((script) =>
+      /\/ins-assets\/app\.js(?:\?|$)/i.test(script.src || '')
+    );
+    if (originalScript?.src) {
+      return new URL('.', originalScript.src).href.replace(/\/$/, '');
+    }
+
+    return `${window.location.origin}/ins-assets`;
+  };
+
+  const ASSET_BASE = resolveAssetBase();
 
   const escapeHtml = (value = '') => String(value)
     .replaceAll('&', '&amp;')
