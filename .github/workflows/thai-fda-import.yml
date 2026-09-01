@@ -19,15 +19,13 @@ jobs:
         with:
           node-version: 22
 
-      - name: Check Thai FDA records
-        run: npm run data:import-thai-fda
+      - name: Probe Thai FDA backend
+        run: node scripts/probe-thai-fda-backend.mjs
 
-      - name: Upload comparison and debug report
+      - name: Upload Thai FDA backend report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: thai-fda-import-report
-          path: |
-            reports/thai-fda-import.json
-            reports/thai-fda-debug/
+          path: reports/thai-fda-backend/
           if-no-files-found: warn
