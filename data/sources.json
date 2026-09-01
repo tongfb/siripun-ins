@@ -15,7 +15,7 @@
       "public_credit": true,
       "public_link": false,
       "status_note": "ใช้เป็นฐานข้อมูลหลักหลังบ้านสำหรับข้อมูลฝั่งไทย ระบบหน้าเว็บให้เครดิตชื่อฐานข้อมูลโดยไม่ทำลิงก์ออกในแต่ละรายการ ฐานนี้ระบุว่าเป็นเครื่องมือสืบค้นเบื้องต้นและไม่ใช้แทนการอ้างอิงกฎหมาย",
-      "fields": ["ins", "name_en", "name_th", "synonyms", "functional_classes", "functional_classes_th", "food_provisions", "search_aid"],
+      "fields": ["ins", "name_en", "name_th", "synonyms", "functional_classes", "functional_classes_th", "food_provisions", "search_aid", "source_warning"],
       "check_mode": "fingerprint"
     },
     {
@@ -29,7 +29,7 @@
       "effective_date": "2025-12-12",
       "public_credit": false,
       "public_link": false,
-      "fields": ["thai_food_provisions", "regulatory_status"],
+      "fields": ["thai_food_provisions", "regulatory_status", "source_warning"],
       "check_mode": "fingerprint"
     },
     {
