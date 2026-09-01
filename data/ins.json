@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "database_version": "0.2.0",
+  "database_version": "0.2.1",
   "reviewed_at": "2026-09-01",
   "primary_data_source": "thai-fda-p468-db",
   "legal_verification_source": "thai-fda-p468-law",
-  "migration_status": "starter-records-awaiting-thai-fda-primary-refresh",
+  "migration_status": "starter-records-partially-refreshed-from-thai-fda-primary",
   "records": [
     {
       "ins": "300",
@@ -26,21 +26,53 @@
     },
     {
       "ins": "406",
-      "name_en": "Agar",
-      "name_th": null,
-      "synonyms": ["Agar-agar", "Gelose", "Japan agar", "Bengal Isinglass", "Ceylon Isinglass", "Chinese Isinglass", "Japanese Isinglass", "Layor Carang"],
-      "functional_classes": ["Bulking agent", "Carrier", "Emulsifier", "Gelling agent", "Glazing agent", "Humectant", "Stabilizer", "Thickener"],
-      "functional_classes_th": [],
+      "name_en": "AGAR",
+      "name_th": "อะการ์",
+      "synonyms": [
+        "Agar-agar",
+        "Bengal Isinglass",
+        "Ceylon Isinglass",
+        "Chinese Isinglass",
+        "Gelose",
+        "Japan agar",
+        "Japanese Isinglass",
+        "Layor Carang"
+      ],
+      "functional_classes": [
+        "Carrier",
+        "Stabilizer",
+        "Emulsifier",
+        "Bulking agent",
+        "Thickener",
+        "Glazing agent",
+        "Gelling agent",
+        "Humectant"
+      ],
+      "functional_classes_th": [
+        "สารช่วยทำละลาย หรือช่วยพา",
+        "สารทำให้คงตัว",
+        "อิมัลซิไฟเออร์",
+        "สารเพิ่มปริมาณ",
+        "สารให้ความข้นเหนียว",
+        "สารเคลือบผิว",
+        "สารทำให้เกิดเจล",
+        "สารทำให้เกิดความชุ่มชื้น"
+      ],
       "jecfa": null,
-      "source_warning": "แหล่งข้อมูลไทยที่เคยใช้สำหรับรายการนี้คือคำชี้แจงประกาศฯ 389 ซึ่งหน้า อย. ปัจจุบันระบุว่ายกเลิกแล้ว จึงนำออกจากข้อมูลปัจจุบันชั่วคราว ชื่อภาษาไทยและหน้าที่ภาษาไทยรอดึงและตรวจยืนยันจาก Thai FDA Food Additive Database P468 V.02",
-      "source_ids": ["codex-gsfa-406", "thai-fda-p468-db", "thai-fda-p468-law"],
+      "source_ids": ["thai-fda-p468-db"],
       "field_sources": {
-        "name_en": ["codex-gsfa-406"],
-        "synonyms": ["codex-gsfa-406"],
-        "functional_classes": ["codex-gsfa-406"],
-        "source_warning": ["thai-fda-p468-db", "thai-fda-p468-law"]
+        "name_en": ["thai-fda-p468-db"],
+        "name_th": ["thai-fda-p468-db"],
+        "synonyms": ["thai-fda-p468-db"],
+        "functional_classes": ["thai-fda-p468-db"],
+        "functional_classes_th": ["thai-fda-p468-db"]
       },
-      "status": "awaiting-thai-fda-primary-refresh"
+      "source_record": {
+        "database_version": "P468 V.02",
+        "detail_url": "https://alimentum.fda.moph.go.th/FDA_FOOD_MVC/Additive/FoodAdditiveDetail?SearchKey=AGAR%20(%E0%B8%AD%E0%B8%B0%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%8C)&SearchType=FaDetail&SearchINS=406",
+        "verified_at": "2026-09-01"
+      },
+      "status": "thai-fda-primary-verified"
     },
     {
       "ins": "491",
