@@ -36,7 +36,7 @@
     .replace(/[()\[\]]/g, '');
 
   function parseQuery(raw) {
-    const matches = String(raw || '').match(/(?:INS\s*)?\d{2,4}(?:\s*\([ivx]+\)|[a-z])?/gi) || [];
+    const matches = String(raw || '').match(/(?:INS\s*)?\d{2,4}(?:[a-z])?(?:\s*\([ivx]+\))?/gi) || [];
     const seen = new Set();
     const tokens = [];
     for (const match of matches) {
