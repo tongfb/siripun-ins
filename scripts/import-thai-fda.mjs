@@ -6,6 +6,9 @@ const manifest = JSON.parse(await fs.readFile(new URL('../data/thai-fda-import.j
 const dbUrl = new URL('../data/ins.json', import.meta.url);
 const db = JSON.parse(await fs.readFile(dbUrl, 'utf8'));
 const records = new Map(db.records.map((record) => [String(record.ins), record]));
+const reportDir = new URL('../reports/', import.meta.url);
+const debugDir = new URL('../reports/thai-fda-debug/', import.meta.url);
+
 const report = {
   checked_at: new Date().toISOString(),
   source_id: manifest.source_id,
@@ -30,20 +33,45 @@ function nextPatch(version) {
   return `${match[1]}.${match[2]}.${Number(match[3]) + 1}`;
 }
 
+function inspectHtml(html) {
+  const scriptSources = [...String(html).matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)]
+    .map((match) => match[1]);
+  const templateMarkers = [...String(html).matchAll(/\{\{\s*([^}\n]{1,120})\}\}/g)]
+    .map((match) => match[1].trim())
+    .slice(0, 30);
+  const ajaxHints = [...String(html).matchAll(/(?:url|href)\s*[:=]\s*["']([^"']+(?:Additive|Food|Search|Detail|api|Api)[^"']*)["']/gi)]
+    .map((match) => match[1])
+    .slice(0, 30);
+  return {
+    script_sources: [...new Set(scriptSources)],
+    template_markers: [...new Set(templateMarkers)],
+    ajax_hints: [...new Set(ajaxHints)]
+  };
+}
+
+await fs.mkdir(reportDir, { recursive: true });
+await fs.mkdir(debugDir, { recursive: true });
+
 for (const item of manifest.records) {
   const result = { ins: String(item.ins), url: item.detail_url, ok: false, changed: false };
+  let html = '';
   try {
     const response = await fetch(item.detail_url, {
       headers: {
-        'user-agent': 'SiripunINS/0.2 Thai-FDA-importer (+https://siripun.com/ins)'
+        'user-agent': 'SiripunINS/0.2 Thai-FDA-importer (+https://siripun.com/ins)',
+        'accept': 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8',
+        'accept-language': 'th-TH,th;q=0.9,en;q=0.7'
       },
       redirect: 'follow'
     });
     result.http_status = response.status;
+    result.content_type = response.headers.get('content-type');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const html = await response.text();
+    html = await response.text();
     result.bytes = Buffer.byteLength(html);
+    result.page_inspection = inspectHtml(html);
+
     const parsed = parseThaiFdaDetail(html, { expectedIns: String(item.ins) });
     result.remote = parsed;
     const current = records.get(String(item.ins));
@@ -68,16 +96,25 @@ for (const item of manifest.records) {
     }
   } catch (error) {
     result.error = String(error?.message || error);
+    if (html) {
+      const debugName = `ins-${String(item.ins).replace(/[^0-9A-Za-z_-]/g, '_')}.html`;
+      await fs.writeFile(new URL(debugName, debugDir), html);
+      result.debug_html = `reports/thai-fda-debug/${debugName}`;
+      result.page_inspection ??= inspectHtml(html);
+    }
   }
   report.results.push(result);
 }
 
-await fs.mkdir(new URL('../reports/', import.meta.url), { recursive: true });
 await fs.writeFile(new URL('../reports/thai-fda-import.json', import.meta.url), JSON.stringify(report, null, 2));
 
 const failed = report.results.filter((result) => !result.ok);
 const changed = report.results.filter((result) => result.changed);
 console.log(`Thai FDA importer checked ${report.results.length} records; ${changed.length} changed; ${failed.length} failed.`);
+for (const result of failed) {
+  console.error(`INS ${result.ins}: ${result.error}`);
+  if (result.debug_html) console.error(`Debug HTML: ${result.debug_html}`);
+}
 
 if (apply && !failed.length && changed.length) {
   db.records = [...records.values()].sort((a, b) => String(a.ins).localeCompare(String(b.ins), undefined, { numeric: true }));
