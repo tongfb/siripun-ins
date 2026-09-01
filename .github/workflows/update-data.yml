@@ -1,0 +1,48 @@
+name: Check INS data sources
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: check = inspect sources, apply = prepare update PR
+        required: true
+        default: check
+        type: choice
+        options: [check, apply]
+  schedule:
+    - cron: '17 2 1 * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  source-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Validate current database
+        run: npm run data:validate
+      - name: Check official sources
+        run: npm run data:check-sources
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ins-source-check
+          path: reports/source-check.json
+      - name: Prepare review branch
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'apply' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="data-review-$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "siripun-ins-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add reports/source-check.json
+          git commit -m "data: add source check report" || exit 0
+          git push origin "$BRANCH"
+          gh pr create --title "Data source review $(date -u +%Y-%m-%d)" --body "Automated source check only. Review source changes before modifying factual INS records." --base main --head "$BRANCH"
