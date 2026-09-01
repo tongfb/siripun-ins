@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "codex-gsfa-300",
+      "authority": "Codex Alimentarius / FAO",
+      "title": "GSFA Online Food Additive Details: Ascorbic acid, L- (INS 300)",
+      "url": "https://www.fao.org/gsfaonline/additives/details.html?id=241&print=true",
+      "type": "official-database",
+      "fields": ["name_en", "synonyms", "functional_classes", "food_provisions"],
+      "check_mode": "fingerprint"
+    },
+    {
+      "id": "codex-gsfa-406",
+      "authority": "Codex Alimentarius / FAO",
+      "title": "GSFA Online Food Additive Details: Agar (INS 406)",
+      "url": "https://www.fao.org/gsfaonline/additives/details.html?id=8&print=true",
+      "type": "official-database",
+      "fields": ["name_en", "synonyms", "functional_classes", "food_provisions"],
+      "check_mode": "fingerprint"
+    },
+    {
+      "id": "who-jecfa-491",
+      "authority": "WHO JECFA",
+      "title": "JECFA Chemical 2271: Sorbitan monostearate",
+      "url": "https://apps.who.int/food-additives-contaminants-jecfa-database/Home/Chemical/2271",
+      "type": "official-database",
+      "fields": ["chemical_name", "cas", "ins", "functional_classes", "adi", "evaluation_year"],
+      "check_mode": "fingerprint"
+    },
+    {
+      "id": "thai-fda-compilation-281",
+      "authority": "Thai FDA, Food Division",
+      "title": "Compilation of Thai food additive provisions (ประกาศฯ 281 และที่แก้ไข)",
+      "url": "https://exfood.fda.moph.go.th/law/data/complilation/Compi_281.pdf",
+      "type": "official-regulation-pdf",
+      "fields": ["name_th", "functional_classes_th", "thai_food_provisions"],
+      "check_mode": "headers"
+    },
+    {
+      "id": "thai-fda-p389",
+      "authority": "Thai FDA, Food Division",
+      "title": "Thai FDA P389 food additive clarification",
+      "url": "https://exfood.fda.moph.go.th/law/data/announ_moph/P389%20%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B8%81%E0%B8%B2%E0%B8%A8%E0%B8%AA%E0%B8%B3%E0%B8%99%E0%B8%B1%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99.pdf",
+      "type": "official-regulation-pdf",
+      "fields": ["name_th", "functional_classes_th", "thai_food_provisions"],
+      "check_mode": "headers"
+    }
+  ]
+}

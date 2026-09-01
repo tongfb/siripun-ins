@@ -1,0 +1,12 @@
+{
+  "title": "ค้นหาเลข INS",
+  "subtitle": "ค้นข้อมูลวัตถุเจือปนอาหารจากแหล่งต้นฉบับ",
+  "placeholder": "เช่น 300, 406, 491",
+  "donation": {
+    "enabled": true,
+    "label": "สนับสนุนผู้จัดทำได้ด้วย bitcoin lightning ที่ donate@zapm.uk",
+    "lightning_address": "donate@zapm.uk",
+    "lnurl_endpoint": "https://zapm.uk/.well-known/lnurlp/donate",
+    "lightning_uri": "lightning:lnurl1dp68gurn8ghj77npwpkjuatt9uh8wetvdskkkmn0wahz7mrww4excup0v3hkuct5v5peuj57"
+  }
+}

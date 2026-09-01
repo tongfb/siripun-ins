@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "database_version": "0.1.0",
+  "reviewed_at": "2026-09-01",
+  "records": [
+    {
+      "ins": "300",
+      "name_en": "Ascorbic acid, L-",
+      "name_th": "กรดแอล-แอสคอร์บิก",
+      "synonyms": ["Vitamin C", "L-Ascorbic acid", "Ascorbic acid"],
+      "functional_classes": ["Acidity regulator", "Antioxidant", "Flour treatment agent", "Sequestrant"],
+      "functional_classes_th": ["สารควบคุมความเป็นกรด", "สารป้องกันการเกิดออกซิเดชัน", "สารปรับปรุงคุณภาพแป้ง", "สารช่วยจับอนุมูลโลหะ"],
+      "jecfa": null,
+      "source_ids": ["codex-gsfa-300", "thai-fda-compilation-281"],
+      "field_sources": {
+        "name_en": ["codex-gsfa-300"],
+        "name_th": ["thai-fda-compilation-281"],
+        "synonyms": ["codex-gsfa-300", "thai-fda-compilation-281"],
+        "functional_classes": ["codex-gsfa-300"],
+        "functional_classes_th": ["thai-fda-compilation-281"]
+      },
+      "status": "source-checked"
+    },
+    {
+      "ins": "406",
+      "name_en": "Agar",
+      "name_th": "อะการ์",
+      "synonyms": ["Agar-agar", "Gelose", "Japan agar", "Bengal Isinglass", "Ceylon Isinglass", "Chinese Isinglass", "Japanese Isinglass", "Layor Carang"],
+      "functional_classes": ["Bulking agent", "Carrier", "Emulsifier", "Gelling agent", "Glazing agent", "Humectant", "Stabilizer", "Thickener"],
+      "functional_classes_th": ["สารเพิ่มปริมาณ", "สารช่วยทำละลาย หรือช่วยพา", "อิมัลซิไฟเออร์", "สารทำให้เกิดเจล", "สารเคลือบผิว", "สารทำให้เกิดความชุ่มชื้น", "สารทำให้คงตัว", "สารให้ความข้นเหนียว"],
+      "jecfa": null,
+      "source_ids": ["codex-gsfa-406", "thai-fda-p389"],
+      "field_sources": {
+        "name_en": ["codex-gsfa-406"],
+        "name_th": ["thai-fda-p389"],
+        "synonyms": ["codex-gsfa-406", "thai-fda-p389"],
+        "functional_classes": ["codex-gsfa-406"],
+        "functional_classes_th": ["thai-fda-p389"]
+      },
+      "status": "source-checked"
+    },
+    {
+      "ins": "491",
+      "name_en": "Sorbitan monostearate",
+      "name_th": "ซอร์บิแทนโมโนสเตียเรต",
+      "synonyms": [],
+      "functional_classes": ["Emulsifier"],
+      "functional_classes_th": ["อิมัลซิไฟเออร์"],
+      "jecfa": {
+        "cas": "1338-41-6",
+        "chemical_name": "Mixture of the partial esters of sorbitol and its mono- and dianhydrides with edible stearic acid",
+        "evaluation_year": 2026,
+        "adi": "Temporary group ADI of 0-25 mg/kg bw as total polyoxyethylene (20) sorbitan esters"
+      },
+      "source_ids": ["who-jecfa-491", "thai-fda-compilation-281"],
+      "field_sources": {
+        "name_en": ["who-jecfa-491", "thai-fda-compilation-281"],
+        "name_th": ["thai-fda-compilation-281"],
+        "functional_classes": ["who-jecfa-491", "thai-fda-compilation-281"],
+        "functional_classes_th": ["thai-fda-compilation-281"],
+        "jecfa": ["who-jecfa-491"]
+      },
+      "status": "source-checked"
+    }
+  ]
+}
