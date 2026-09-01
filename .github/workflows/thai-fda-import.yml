@@ -1,0 +1,31 @@
+name: Thai FDA Import Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check Thai FDA records
+        run: npm run data:import-thai-fda
+
+      - name: Upload comparison report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thai-fda-import-report
+          path: reports/thai-fda-import.json
+          if-no-files-found: warn
