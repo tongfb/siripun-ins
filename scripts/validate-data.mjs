@@ -7,6 +7,21 @@ const errors = [];
 const seen = new Set();
 const disallowedCurrentStatuses = new Set(['revoked', 'superseded']);
 
+const primarySource = sourceMap.get(sourceData.primary_source_id);
+if (!primarySource) errors.push(`missing primary source: ${sourceData.primary_source_id}`);
+if (db.primary_data_source !== sourceData.primary_source_id) {
+  errors.push(`database primary_data_source mismatch: ${db.primary_data_source} != ${sourceData.primary_source_id}`);
+}
+if (primarySource && primarySource.role !== 'primary-thai-data-source') {
+  errors.push(`primary source ${primarySource.id} has invalid role ${primarySource.role}`);
+}
+if (primarySource?.public_link !== false) {
+  errors.push(`primary source ${primarySource?.id || '(missing)'} must keep public_link=false`);
+}
+if (db.legal_verification_source !== sourceData.legal_verification_source_id) {
+  errors.push(`legal verification source mismatch: ${db.legal_verification_source} != ${sourceData.legal_verification_source_id}`);
+}
+
 for (const record of db.records) {
   if (!record.ins || seen.has(record.ins)) errors.push(`invalid/duplicate INS: ${record.ins}`);
   seen.add(record.ins);
@@ -46,4 +61,4 @@ if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`Validated ${db.records.length} INS records and ${sourceMap.size} sources with source-status checks.`);
+console.log(`Validated ${db.records.length} INS records and ${sourceMap.size} sources. Primary backend source: ${sourceData.primary_source_id}.`);
