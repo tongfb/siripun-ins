@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "siripun-ins",
+  "main": "./src/worker.js",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/ins-assets/api/*"]
+  },
+  "routes": [
+    {
+      "pattern": "siripun.com/ins-assets/*",
+      "zone_name": "siripun.com"
+    }
+  ],
+  "vars": {
+    "GITHUB_OWNER": "tongfb",
+    "GITHUB_REPO": "siripun-ins",
+    "GITHUB_WORKFLOW": "update-data.yml",
+    "GITHUB_REF": "main"
+  }
+}

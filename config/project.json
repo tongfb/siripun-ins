@@ -1,0 +1,16 @@
+{
+  "project_name": "Siripun INS Lookup",
+  "public_page": "https://siripun.com/ins",
+  "asset_base": "https://siripun.com/ins-assets",
+  "donation": {
+    "enabled": true,
+    "label": "สนับสนุนผู้จัดทำได้ด้วย bitcoin lightning ที่ donate@zapm.uk",
+    "lightning_address": "donate@zapm.uk",
+    "lnurl_endpoint": "https://zapm.uk/.well-known/lnurlp/donate"
+  },
+  "data_policy": {
+    "principle": "source-based-facts-only",
+    "allow_ai_generated_additive_content": false,
+    "missing_data_behavior": "show-unavailable"
+  }
+}

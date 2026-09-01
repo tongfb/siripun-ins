@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "record_policy": {
+    "facts_only": true,
+    "ai_generated_explanations": false,
+    "every_published_field_requires_source": true,
+    "unknown_values": "null-or-empty"
+  },
+  "core_fields": [
+    "ins",
+    "name_en",
+    "name_th",
+    "synonyms",
+    "functional_classes",
+    "functional_classes_th",
+    "jecfa",
+    "source_ids",
+    "field_sources",
+    "status"
+  ],
+  "future_datasets": {
+    "provisions": "Food-category permissions, maximum levels, notes and jurisdiction; stored separately because they can be group-level and change independently.",
+    "research": "Bibliographic facts from primary indexes or publications; no AI-written health conclusions."
+  }
+}
