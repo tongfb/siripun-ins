@@ -1,6 +1,6 @@
 {
   "name": "siripun-ins",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Source-based INS food additive lookup for WordPress + Cloudflare Workers",
   "type": "module",
@@ -8,6 +8,8 @@
     "test": "node --test",
     "data:validate": "node scripts/validate-data.mjs",
     "data:check-sources": "node scripts/check-sources.mjs",
+    "data:import-thai-fda": "node scripts/import-thai-fda.mjs",
+    "data:import-thai-fda:apply": "node scripts/import-thai-fda.mjs --apply",
     "dev": "npx wrangler dev",
     "deploy": "npx wrangler deploy",
     "data:sync": "node scripts/sync-public-data.mjs"
