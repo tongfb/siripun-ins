@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "database_version": "0.1.0",
+  "database_version": "0.1.1",
   "reviewed_at": "2026-09-01",
   "records": [
     {
@@ -52,15 +52,17 @@
         "evaluation_year": 2026,
         "adi": "Temporary group ADI of 0-25 mg/kg bw as total polyoxyethylene (20) sorbitan esters"
       },
+      "source_warning": "พบความไม่สอดคล้องภายในหน้า WHO JECFA ปี 2026: ช่อง ADI ใช้คำว่า polyoxyethylene (20) sorbitan esters ขณะที่ Comments ในหน้าเดียวกันอ้างถึง sorbitan fatty acid esters (INS 491–495) จึงควรตรวจต้นฉบับก่อนนำข้อความ ADI ไปอ้างต่อ",
       "source_ids": ["who-jecfa-491", "thai-fda-compilation-281"],
       "field_sources": {
         "name_en": ["who-jecfa-491", "thai-fda-compilation-281"],
         "name_th": ["thai-fda-compilation-281"],
         "functional_classes": ["who-jecfa-491", "thai-fda-compilation-281"],
         "functional_classes_th": ["thai-fda-compilation-281"],
-        "jecfa": ["who-jecfa-491"]
+        "jecfa": ["who-jecfa-491"],
+        "source_warning": ["who-jecfa-491"]
       },
-      "status": "source-checked"
+      "status": "source-checked-with-warning"
     }
   ]
 }
