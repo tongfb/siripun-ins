@@ -11,6 +11,13 @@
   "data_policy": {
     "principle": "source-based-facts-only",
     "allow_ai_generated_additive_content": false,
-    "missing_data_behavior": "show-unavailable"
+    "missing_data_behavior": "show-unavailable",
+    "primary_thai_source": "thai-fda-p468-db",
+    "legal_verification_source": "thai-fda-p468-law",
+    "supplemental_sources": ["codex", "jecfa"],
+    "public_record_source_links": false,
+    "source_urls_backend_only": true,
+    "public_credit": "ข้อมูลจาก สำนักงานคณะกรรมการอาหารและยา (อย.) — Thai FDA Food Additive Database",
+    "public_database_version": "P468 V.02"
   }
 }
