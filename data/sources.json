@@ -28,7 +28,7 @@
       "url": "https://apps.who.int/food-additives-contaminants-jecfa-database/Home/Chemical/2271",
       "type": "official-database",
       "status": "current",
-      "fields": ["chemical_name", "cas", "ins", "functional_classes", "adi", "evaluation_year"],
+      "fields": ["name_en", "chemical_name", "cas", "ins", "functional_classes", "adi", "evaluation_year", "jecfa", "source_warning"],
       "check_mode": "fingerprint"
     },
     {
