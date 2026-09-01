@@ -9,6 +9,12 @@ const records = new Map(db.records.map((record) => [String(record.ins), record])
 const reportDir = new URL('../reports/', import.meta.url);
 const debugDir = new URL('../reports/thai-fda-debug/', import.meta.url);
 
+const requestHeaders = {
+  'user-agent': 'SiripunINS/0.2 Thai-FDA-importer (+https://siripun.com/ins)',
+  'accept': 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8',
+  'accept-language': 'th-TH,th;q=0.9,en;q=0.7'
+};
+
 const report = {
   checked_at: new Date().toISOString(),
   source_id: manifest.source_id,
@@ -34,19 +40,73 @@ function nextPatch(version) {
 }
 
 function inspectHtml(html) {
-  const scriptSources = [...String(html).matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)]
+  const text = String(html || '');
+  const scriptSources = [...text.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)]
     .map((match) => match[1]);
-  const templateMarkers = [...String(html).matchAll(/\{\{\s*([^}\n]{1,120})\}\}/g)]
+  const dynamicScriptSources = [...text.matchAll(/src=([^"'<>\s+]+\.js)/gi)]
+    .map((match) => match[1]);
+  const templateMarkers = [...text.matchAll(/\{\{\s*([^}\n]{1,120})\}\}/g)]
     .map((match) => match[1].trim())
-    .slice(0, 30);
-  const ajaxHints = [...String(html).matchAll(/(?:url|href)\s*[:=]\s*["']([^"']+(?:Additive|Food|Search|Detail|api|Api)[^"']*)["']/gi)]
+    .slice(0, 40);
+  const ajaxHints = [...text.matchAll(/(?:url|href)\s*[:=]\s*["']([^"']+(?:Additive|Food|Search|Detail|api|Api)[^"']*)["']/gi)]
     .map((match) => match[1])
-    .slice(0, 30);
+    .slice(0, 50);
   return {
     script_sources: [...new Set(scriptSources)],
+    dynamic_script_sources: [...new Set(dynamicScriptSources)],
     template_markers: [...new Set(templateMarkers)],
     ajax_hints: [...new Set(ajaxHints)]
   };
+}
+
+function inspectJavaScript(js) {
+  const text = String(js || '');
+  const httpCalls = [...text.matchAll(/\$http\s*\.\s*(get|post|put|delete|patch)\s*\(([^\n;]{0,300})/gi)]
+    .map((match) => `${match[1].toUpperCase()} ${match[2].trim()}`)
+    .slice(0, 100);
+  const routeHints = [...text.matchAll(/["'`]([^"'`\n]{1,240}(?:Additive|Food|Search|Detail|Function|Synonym|Codex|api|Api)[^"'`\n]*)["'`]/gi)]
+    .map((match) => match[1].trim())
+    .filter(Boolean)
+    .slice(0, 150);
+  const centerCalls = [...text.matchAll(/(?:CENTER_SV|center_sv|CenterSV|CENTER)\s*\.\s*([A-Za-z0-9_$]+)\s*\(([^\n;]{0,240})/g)]
+    .map((match) => `${match[1]}(${match[2].trim()}`)
+    .slice(0, 100);
+  return {
+    http_calls: [...new Set(httpCalls)],
+    route_hints: [...new Set(routeHints)],
+    center_service_calls: [...new Set(centerCalls)]
+  };
+}
+
+async function captureAppScripts(html, pageUrl, ins) {
+  const inspection = inspectHtml(html);
+  const candidates = [...new Set([
+    ...inspection.dynamic_script_sources,
+    ...inspection.script_sources.filter((src) => /Angular_App/i.test(src))
+  ])].filter((src) => /Angular_App/i.test(src));
+
+  const scripts = [];
+  for (const src of candidates) {
+    const absoluteUrl = new URL(src, pageUrl).href;
+    const entry = { src, url: absoluteUrl, ok: false };
+    try {
+      const response = await fetch(absoluteUrl, { headers: requestHeaders, redirect: 'follow' });
+      entry.http_status = response.status;
+      entry.content_type = response.headers.get('content-type');
+      const body = await response.text();
+      entry.bytes = Buffer.byteLength(body);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const filename = `ins-${String(ins).replace(/[^0-9A-Za-z_-]/g, '_')}-${absoluteUrl.split('/').pop().split('?')[0]}`;
+      await fs.writeFile(new URL(filename, debugDir), body);
+      entry.debug_file = `reports/thai-fda-debug/${filename}`;
+      entry.inspection = inspectJavaScript(body);
+      entry.ok = true;
+    } catch (error) {
+      entry.error = String(error?.message || error);
+    }
+    scripts.push(entry);
+  }
+  return scripts;
 }
 
 await fs.mkdir(reportDir, { recursive: true });
@@ -57,11 +117,7 @@ for (const item of manifest.records) {
   let html = '';
   try {
     const response = await fetch(item.detail_url, {
-      headers: {
-        'user-agent': 'SiripunINS/0.2 Thai-FDA-importer (+https://siripun.com/ins)',
-        'accept': 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8',
-        'accept-language': 'th-TH,th;q=0.9,en;q=0.7'
-      },
+      headers: requestHeaders,
       redirect: 'follow'
     });
     result.http_status = response.status;
@@ -101,6 +157,7 @@ for (const item of manifest.records) {
       await fs.writeFile(new URL(debugName, debugDir), html);
       result.debug_html = `reports/thai-fda-debug/${debugName}`;
       result.page_inspection ??= inspectHtml(html);
+      result.app_scripts = await captureAppScripts(html, item.detail_url, item.ins);
     }
   }
   report.results.push(result);
@@ -114,6 +171,11 @@ console.log(`Thai FDA importer checked ${report.results.length} records; ${chang
 for (const result of failed) {
   console.error(`INS ${result.ins}: ${result.error}`);
   if (result.debug_html) console.error(`Debug HTML: ${result.debug_html}`);
+  for (const script of result.app_scripts || []) {
+    console.error(`App script ${script.url}: ${script.ok ? 'captured' : script.error}`);
+    for (const hint of script.inspection?.http_calls || []) console.error(`  HTTP hint: ${hint}`);
+    for (const hint of script.inspection?.route_hints || []) console.error(`  Route hint: ${hint}`);
+  }
 }
 
 if (apply && !failed.length && changed.length) {
