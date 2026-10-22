@@ -18,6 +18,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          check-latest: true
+      - name: Verify patched Node.js 22
+        run: |
+          node -e 'const [major, minor, patch] = process.versions.node.split(".").map(Number); console.log(`Node.js v${process.versions.node}; minimum v22.23.4`); if (major !== 22 || minor < 23 || (minor === 23 && patch < 4)) process.exit(1)'
 
       - name: Build Thai FDA database preview
         run: npm run data:preview-thai-fda
